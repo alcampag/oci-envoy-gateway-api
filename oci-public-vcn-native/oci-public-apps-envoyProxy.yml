@@ -1,0 +1,74 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: oci-public-apps
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: LoadBalancer
+        allocateLoadBalancerNodePorts: false
+        externalTrafficPolicy: Cluster
+        annotations:
+          oci.oraclecloud.com/load-balancer-type: "lb"
+          service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+          service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+          service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
+          oci.oraclecloud.com/reserved-ips: "${LB_PUBLIC_IP}"
+          service.beta.kubernetes.io/oci-load-balancer-subnet1: "${LB_PUBLIC_SUBNET_ID}"
+          service.beta.kubernetes.io/oci-load-balancer-ssl-ports: "443"
+          service.beta.kubernetes.io/oci-load-balancer-tls-secret: "${CERTIFICATE_SECRET_NAME}"
+          oci.oraclecloud.com/oci-load-balancer-listener-ssl-config: '{"CipherSuiteName":"oci-tls-12-13-ssl-cipher-suite-v3", "Protocols":["TLSv1.2","TLSv1.3"]}'
+          oci-load-balancer.oraclecloud.com/health-check: '{"protocol":"HTTP","port":10080,"urlPath":"/healthz","retries":3,"timeoutInMillis":4000}'
+          oci.oraclecloud.com/security-rule-management-mode: "None"
+          service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: "None"
+          service.beta.kubernetes.io/oci-load-balancer-backend-protocol: "HTTP"
+          oci.oraclecloud.com/oci-network-security-groups: "${FRONTEND_NSG_ID},${BACKEND_NSG_ID}"
+          service.beta.kubernetes.io/oci-load-balancer-connection-idle-timeout: "60"
+          oci.oraclecloud.com/oci-load-balancer-rule-sets: |
+            {
+              "header_size": {
+                "items": [
+                  {
+                    "action": "HTTP_HEADER",
+                    "httpLargeHeaderSizeInKB": 16
+                  }
+                ]
+              }
+            }
+      envoyHpa:
+        minReplicas: 2
+        maxReplicas: 3
+        metrics:
+          - resource:
+              name: cpu
+              target:
+                averageUtilization: 70
+                type: Utilization
+            type: Resource
+      envoyPDB:
+        minAvailable: 1
+      envoyDeployment:
+        strategy:
+          rollingUpdate:
+            maxSurge: "100%"
+            maxUnavailable: "25%"
+        pod:
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - podAffinityTerm:
+                    labelSelector:
+                      matchLabels:
+                        gateway.networking.k8s.io/gateway-name: oci-public-apps
+                    topologyKey: "kubernetes.io/hostname"
+                  weight: 100
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: "topology.kubernetes.io/zone"
+              whenUnsatisfiable: "ScheduleAnyway"
+              labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: oci-public-apps

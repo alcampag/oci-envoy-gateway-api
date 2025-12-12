@@ -1,0 +1,33 @@
+podDisruptionBudget:
+  minAvailable: 1
+
+deployment:
+  replicas: 2
+  pod:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: "eg"
+              topologyKey: "kubernetes.io/hostname"
+            weight: 100
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: "topology.kubernetes.io/zone"    # oci.oraclecloud.com/fault-domain  if in regions with only 1 AD
+      whenUnsatisfiable: "ScheduleAnyway"
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/instance: "eg"
+
+# https://gateway.envoyproxy.io/docs/tasks/operations/gateway-namespace-mode
+# Stronger isolation between tenants (Gateways can be created on different namespaces than envoy-gateway-system)
+# Will create broader RBAC rules for the control plane
+config:
+  envoyGateway:
+    provider:
+      type: Kubernetes
+      kubernetes:
+        deploy:
+          type: GatewayNamespace

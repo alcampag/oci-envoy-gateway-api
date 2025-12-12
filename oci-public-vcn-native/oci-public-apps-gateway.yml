@@ -1,0 +1,29 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: oci-public-apps
+  namespace: envoy-gateway-system
+spec:
+  gatewayClassName: eg
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: oci-public-apps
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: "*.${LB_PUBLIC_IP}.nip.io"
+      # This defaults to the current namespace, there is no need to specify it, juste here for documentation
+      allowedRoutes:
+        namespaces:
+          from: Same
+
+    - name: https
+      protocol: HTTP
+      port: 443
+      hostname: "*.${LB_PUBLIC_IP}.nip.io"
+      allowedRoutes:
+        namespaces:
+          from: All
