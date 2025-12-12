@@ -1,8 +1,6 @@
 #!/bin/bash
 
-export LB_PUBLIC_IP=""
-export LB_PUBLIC_SUBNET_ID=""
-export LB_PUBLIC_SUBNET_CIDR=""
+export LB_PRIVATE_SUBNET_ID=""
 export FRONTEND_NSG_ID=""
 export BACKEND_NSG_ID=""
 export CERTIFICATE_SECRET_NAME="tls-certificate-secret"

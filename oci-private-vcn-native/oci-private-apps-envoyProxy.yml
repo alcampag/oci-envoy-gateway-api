@@ -1,0 +1,56 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: oci-private-apps
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: LoadBalancer
+        allocateLoadBalancerNodePorts: false
+        externalTrafficPolicy: Cluster
+        annotations:
+          oci.oraclecloud.com/load-balancer-type: "nlb"
+          oci-network-load-balancer.oraclecloud.com/internal: "true"
+          oci-network-load-balancer.oraclecloud.com/subnet: "${LB_PRIVATE_SUBNET_ID}"
+          oci-network-load-balancer.oraclecloud.com/health-check: '{"protocol":"TCP","port":0,"retries":3,"timeoutInMillis":4000}'
+          oci.oraclecloud.com/security-rule-management-mode: "None"
+          oci-network-load-balancer.oraclecloud.com/security-list-management-mode: "None"
+          oci-network-load-balancer.oraclecloud.com/oci-network-security-groups: "${FRONTEND_NSG_ID},${BACKEND_NSG_ID}"
+          oci-network-load-balancer.oraclecloud.com/is-ppv2-enabled: "true"
+      envoyHpa:
+        minReplicas: 2
+        maxReplicas: 3
+        metrics:
+          - resource:
+              name: cpu
+              target:
+                averageUtilization: 70
+                type: Utilization
+            type: Resource
+      envoyPDB:
+        minAvailable: 1
+      envoyDeployment:
+        strategy:
+          rollingUpdate:
+            maxSurge: "100%"
+            maxUnavailable: "25%"
+        pod:
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - podAffinityTerm:
+                    labelSelector:
+                      matchLabels:
+                        gateway.networking.k8s.io/gateway-name: oci-public-apps
+                    topologyKey: "kubernetes.io/hostname"
+                  weight: 100
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: "topology.kubernetes.io/zone"
+              whenUnsatisfiable: "ScheduleAnyway"
+              labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: oci-public-apps
