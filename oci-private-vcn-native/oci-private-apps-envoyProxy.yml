@@ -49,7 +49,7 @@ spec:
                   weight: 100
           topologySpreadConstraints:
             - maxSkew: 1
-              topologyKey: "topology.kubernetes.io/zone"
+              topologyKey: "topology.kubernetes.io/zone"  # oci.oraclecloud.com/fault-domain if using a region with 1 AD
               whenUnsatisfiable: "ScheduleAnyway"
               labelSelector:
                 matchLabels:

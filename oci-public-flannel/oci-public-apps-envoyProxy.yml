@@ -9,8 +9,7 @@ spec:
     kubernetes:
       envoyService:
         type: LoadBalancer
-        allocateLoadBalancerNodePorts: false
-        externalTrafficPolicy: Cluster
+        externalTrafficPolicy: Local
         annotations:
           oci.oraclecloud.com/load-balancer-type: "lb"
           service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
@@ -21,7 +20,6 @@ spec:
           service.beta.kubernetes.io/oci-load-balancer-ssl-ports: "443"
           service.beta.kubernetes.io/oci-load-balancer-tls-secret: "${CERTIFICATE_SECRET_NAME}"
           oci.oraclecloud.com/oci-load-balancer-listener-ssl-config: '{"CipherSuiteName":"oci-tls-12-13-ssl-cipher-suite-v3", "Protocols":["TLSv1.2","TLSv1.3"]}'
-          oci-load-balancer.oraclecloud.com/health-check: '{"protocol":"HTTP","port":10080,"urlPath":"/healthz","retries":3,"timeoutInMillis":4000}'
           oci.oraclecloud.com/security-rule-management-mode: "None"
           service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: "None"
           service.beta.kubernetes.io/oci-load-balancer-backend-protocol: "HTTP"
@@ -67,7 +65,7 @@ spec:
                   weight: 100
           topologySpreadConstraints:
             - maxSkew: 1
-              topologyKey: "topology.kubernetes.io/zone"    # oci.oraclecloud.com/fault-domain if using a region with 1 AD
+              topologyKey: "topology.kubernetes.io/zone"  # oci.oraclecloud.com/fault-domain if using a region with 1 AD
               whenUnsatisfiable: "ScheduleAnyway"
               labelSelector:
                 matchLabels:

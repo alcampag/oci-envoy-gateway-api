@@ -1,0 +1,14 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: oci-public-apps
+  namespace: envoy-gateway-system
+spec:
+  targetRefs:
+    - kind: Gateway
+      group: gateway.networking.k8s.io
+      name: oci-public-apps
+  clientIPDetection:
+    xForwardedFor:
+      trustedCIDRs:
+        - "${LB_PUBLIC_SUBNET_CIDR}"
