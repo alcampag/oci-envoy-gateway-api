@@ -4,7 +4,7 @@ A collection of Kubernetes manifests and configuration templates for deploying t
 
 ## Overview
 
-This project provides production-ready configurations for running Envoy Gateway on OCI Kubernetes clusters with different networking setups. It includes OCI-specific optimizations for load balancers, network security groups, SSL/TLS termination, and high availability across availability domains.
+This project provides sample configurations for running Envoy Gateway on OCI Kubernetes clusters with different networking setups. It includes OCI-specific optimizations for load balancers, network security groups, SSL/TLS termination, and high availability across availability domains.
 
 The configurations support both public and private load balancer deployments using either Flannel CNI or OCI VCN-native pod networking.
 
@@ -16,7 +16,7 @@ The configurations support both public and private load balancer deployments usi
 - **High Availability**: Topology spread constraints across OCI availability domains/fault domains
 - **Auto-scaling**: Horizontal Pod Autoscaler (HPA) configuration for Envoy proxies
 - **Pod Disruption Budgets**: Ensures availability during cluster maintenance
-- **Client IP Detection**: Proper X-Forwarded-For header configuration for OCI load balancers
+- **Client IP Detection**: Proper X-Forwarded-For header configuration for OCI load balancers, and Proxy Protocol for Network Load Balancer
 - **TLS Redirect**: Automatic HTTP to HTTPS redirection
 
 ## Configuration Scenarios
@@ -41,6 +41,7 @@ The configurations support both public and private load balancer deployments usi
 - Internal load balancer (not internet-facing)
 - Optimized for private network traffic
 - No SSL termination (handled by applications)
+- Proxy Protocol v2
 
 ### Flannel vs VCN-Native Networking
 
@@ -93,11 +94,11 @@ The configurations support both public and private load balancer deployments usi
 2. **Choose your configuration scenario and deploy:**
 
    ```bash
-   # For public load balancer with Flannel CNI
-   cd oci-public-flannel
+   # For public load balancer with VCN-native CNI
+   cd oci-public-vcn-native
 
-   # Or for private load balancer with VCN-native networking
-   # cd oci-private-vcn-native
+   # Or for private load balancer with Flannel networking
+   # cd oci-public-flannel
    ```
 
 3. **Set environment variables (see Environment Variables section below)**
@@ -333,10 +334,6 @@ Test your changes across all four configuration scenarios:
 - Public + VCN-native
 - Private + Flannel
 - Private + VCN-native
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
 
 ## Support
 
