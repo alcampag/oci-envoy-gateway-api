@@ -97,7 +97,7 @@ The configurations support both public and private load balancer deployments usi
    # For public load balancer with VCN-native CNI
    cd oci-public-vcn-native
 
-   # Or for private load balancer with Flannel networking
+   # Or for public load balancer with Flannel networking
    # cd oci-public-flannel
    ```
 
