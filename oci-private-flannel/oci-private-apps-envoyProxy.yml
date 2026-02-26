@@ -18,6 +18,7 @@ spec:
           oci-network-load-balancer.oraclecloud.com/security-list-management-mode: "None"
           oci-network-load-balancer.oraclecloud.com/oci-network-security-groups: "${FRONTEND_NSG_ID},${BACKEND_NSG_ID}"
           oci-network-load-balancer.oraclecloud.com/is-ppv2-enabled: "true"
+          oci-network-load-balancer.oraclecloud.com/is-instant-failover-enabled: "true"
       envoyHpa:
         minReplicas: 2
         maxReplicas: 3
