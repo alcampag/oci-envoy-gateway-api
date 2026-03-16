@@ -20,6 +20,7 @@ spec:
           service.beta.kubernetes.io/oci-load-balancer-ssl-ports: "443"
           service.beta.kubernetes.io/oci-load-balancer-tls-secret: "${CERTIFICATE_SECRET_NAME}"
           oci.oraclecloud.com/oci-load-balancer-listener-ssl-config: '{"CipherSuiteName":"oci-tls-12-13-ssl-cipher-suite-v3", "Protocols":["TLSv1.2","TLSv1.3"]}'
+          oci.oraclecloud.com/ingress-ip-mode: "proxy"
           oci.oraclecloud.com/security-rule-management-mode: "None"
           service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: "None"
           service.beta.kubernetes.io/oci-load-balancer-backend-protocol: "HTTP"
